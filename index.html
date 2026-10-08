@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<title>Sentiment Compass</title>
+<style>
+:root{--bg:#f5f6f8;--card:#fff;--tx:#1b2330;--mu:#6a7380;--bd:#e4e7ec;--pos:#3b8f68;--posb:#eaf5ef;--neu:#b98420;--neub:#fbf3e1;--neg:#bf5b5b;--negb:#fbeaea;--ac:#34507a;--acb:#edf1f7;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10141a;--card:#181d25;--tx:#e8ebef;--mu:#98a2b0;--bd:#272e38;--pos:#6cc496;--posb:#172a20;--neu:#e0b04f;--neub:#2e2617;--neg:#e08a8a;--negb:#301d1d;--ac:#8fb0e0;--acb:#1b2636}}
+:root[data-theme="dark"]{--bg:#10141a;--card:#181d25;--tx:#e8ebef;--mu:#98a2b0;--bd:#272e38;--pos:#6cc496;--posb:#172a20;--neu:#e0b04f;--neub:#2e2617;--neg:#e08a8a;--negb:#301d1d;--ac:#8fb0e0;--acb:#1b2636}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.55 Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:820px;margin:0 auto;padding:28px 16px 56px}
+.brand{display:flex;gap:12px;align-items:center;margin-bottom:22px}
+.logo{width:40px;height:40px;border-radius:11px;background:var(--ac);display:grid;place-items:center}
+h1{font-size:20px;margin:0;letter-spacing:-.01em}.sub{margin:0;color:var(--mu);font-size:13.5px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:20px;margin-bottom:16px;box-shadow:0 1px 2px rgba(16,24,40,.04)}
+.lab{font-size:11px;letter-spacing:.1em;font-weight:700;color:var(--mu);text-transform:uppercase;margin:0 0 10px}
+/* workflow */
+.wf{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}
+.wf .pill0{font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--mu)}
+.wf .ar{color:var(--mu);line-height:1}
+.pair{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:center}
+.bx{border:1px solid var(--bd);border-radius:12px;padding:10px 18px;min-width:210px;background:var(--bg)}
+.bx small{display:block;font-size:11px;letter-spacing:.09em;color:var(--mu)}.bx b{font-size:15px}
+.bx.t{border-left:3px solid var(--ac)}.bx.e{border-left:3px solid var(--pos)}
+.bx .eng{font-size:12.5px;font-weight:600;color:var(--ac);margin-top:2px}.bx.e .eng{color:var(--pos)}
+.plus{font-weight:700;color:var(--mu)}
+.fin{border:1px solid var(--bd);border-radius:10px;padding:7px 18px;font-weight:600;font-size:13.5px;background:var(--acb);color:var(--ac)}
+/* input */
+textarea{width:100%;min-height:104px;border:1px solid var(--bd);border-radius:10px;padding:13px;font:inherit;font-size:16px;background:var(--bg);color:var(--tx);resize:vertical}
+textarea:focus{outline:2px solid var(--ac);outline-offset:1px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:12px}
+button{font:inherit;font-size:14px;font-weight:500;border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:9px;padding:9px 16px;cursor:pointer}
+button:hover{background:var(--bg)}button.p{background:var(--ac);color:#fff;border-color:var(--ac)}button.p:hover{opacity:.92}
+button.ex{font-size:12.5px;padding:5px 11px;color:var(--mu)}
+.mu{color:var(--mu);font-size:13px}
+/* results */
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.res{border-radius:13px;padding:16px;border:1px solid var(--bd);background:var(--card)}
+.res h3{margin:0;font-size:11px;letter-spacing:.1em;color:var(--mu);font-weight:700}
+.res .eng{font-size:13.5px;font-weight:600;margin-top:2px}
+.res .v{font-size:23px;font-weight:700;margin:12px 0 8px;letter-spacing:-.01em}
+.res .bar{height:6px;border-radius:3px;background:rgba(127,127,127,.2);overflow:hidden}.res .bar i{display:block;height:100%;background:currentColor}
+.res .pw{font-size:12px;color:var(--mu);margin-top:10px}
+.res .det{font-size:20px;letter-spacing:2px;margin-top:6px;min-height:28px;word-break:break-all}
+.res.Positive{background:var(--posb);border-color:transparent;color:var(--pos)}
+.res.Neutral{background:var(--neub);border-color:transparent;color:var(--neu)}
+.res.Negative{background:var(--negb);border-color:transparent;color:var(--neg)}
+.res.none{color:var(--mu)}
+.res h3,.res .pw,.res .eng{color:var(--tx)}.res h3,.res .pw{color:var(--mu)}
+.insight{border:1px solid var(--bd);border-left:3px solid var(--ac);background:var(--card);border-radius:12px;padding:14px 18px;margin-top:14px}
+.insight small{display:block;font-size:11px;letter-spacing:.1em;font-weight:700;color:var(--ac);margin-bottom:4px}
+.foot{font-size:12px;color:var(--mu);margin-top:8px}
+.stage{border:1px solid var(--bd);border-left:3px solid var(--ac);border-radius:12px;padding:16px;background:var(--bg)}
+.stl{font-size:11px;letter-spacing:.1em;font-weight:700;color:var(--ac);margin-bottom:8px}
+.stage textarea{background:var(--card)}
+.ar{text-align:center;color:var(--mu);margin:10px 0;font-size:18px;line-height:1}
+.pairr{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:stretch}
+.pairr .plus{align-self:center;font-weight:700;color:var(--mu);font-size:18px}
+@media (max-width:620px){.pairr{grid-template-columns:1fr}.pairr .plus{justify-self:center}}
+.bd{margin-top:18px;border-top:1px solid var(--bd);padding-top:16px}
+.chips span{display:inline-block;margin:0 6px 6px 0;padding:3px 10px;border-radius:7px;background:var(--bg);border:1px solid var(--bd);font-size:12.5px}
+.chips .mu{margin:8px 0 4px}.chips em.t{font-style:normal;font-size:10.5px;padding:1px 7px;border-radius:99px;background:var(--acb);color:var(--ac)}
+.warn{margin-top:10px;padding:9px 12px;border-radius:9px;background:var(--neub);color:var(--neu);font-size:13px}
+.cmr{display:flex;gap:12px;justify-content:space-between;align-items:flex-start;padding:10px 0;border-top:1px solid var(--bd)}
+.cmr p{margin:0;word-break:break-word}.cmr .tg{display:flex;flex-direction:column;gap:4px;align-items:flex-end;flex:none}
+.pl{font-size:11.5px;font-weight:600;padding:2px 9px;border-radius:99px;white-space:nowrap}
+.pl.Positive{background:var(--posb);color:var(--pos)}.pl.Neutral{background:var(--neub);color:var(--neu)}.pl.Negative{background:var(--negb);color:var(--neg)}.pl.none{background:var(--bg);color:var(--mu)}
+button.ex.on{border-color:var(--ac);color:var(--ac);background:var(--acb)}
+.aud{background:var(--acb);border:1px solid var(--bd);border-radius:12px;padding:12px 16px;margin-bottom:16px;font-size:13.5px;color:var(--tx)}
+.plats{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:10px}.plats span{font-size:12.5px;color:var(--mu);margin-right:4px}
+.plats button{font-size:12.5px;padding:5px 12px;border-radius:99px}.plats button.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+.dash{margin-top:4px}.dh{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin:8px 0 12px}
+.dt{font-size:18px;margin:0}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:14px}
+.kpi{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px;border-left:3px solid var(--bd)}
+.kpi small{display:block;font-size:10.5px;letter-spacing:.09em;color:var(--mu);font-weight:700}.kpi b{display:block;font-size:26px;letter-spacing:-.02em;margin-top:2px}.kpi b span{font-size:13px;color:var(--mu);font-weight:500}.kpi em{font-style:normal;font-size:12px;color:var(--mu)}
+.kpi.Positive{border-left-color:var(--pos)}.kpi.Positive b{color:var(--pos)}.kpi.Neutral{border-left-color:var(--neu)}.kpi.Neutral b{color:var(--neu)}.kpi.Negative{border-left-color:var(--neg)}.kpi.Negative b{color:var(--neg)}
+.pn2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}.pn2 .card{margin-bottom:0}.pn2{margin-bottom:14px}
+.card.pn{padding:18px}
+.dn{width:120px;height:120px;border-radius:50%;display:grid;place-items:center;flex:none}.dn span{width:84px;height:84px;border-radius:50%;background:var(--card);display:grid;place-items:center;text-align:center;font-size:11.5px;color:var(--mu);line-height:1.2}.dn span b{display:block;font-size:20px;color:var(--tx)}
+.ov{display:flex;gap:20px;align-items:center;flex-wrap:wrap}.lg div{font-size:13.5px;margin:4px 0;display:flex;align-items:center;gap:8px}.lg i{width:10px;height:10px;border-radius:3px;display:inline-block}.lg b{margin-left:auto;padding-left:14px}
+.dp{background:var(--pos)}.dm{background:var(--neu)}.dg{background:var(--neg)}
+.sg{margin-bottom:12px}.sgh{display:flex;gap:8px;align-items:center;margin-bottom:6px;font-size:13.5px}.sgh .pl,.sgh .mu{margin-left:auto}
+.trk{height:7px;border-radius:4px;background:var(--bd);overflow:hidden}.trk i{display:block;height:100%}.trk i.Positive{background:var(--pos)}.trk i.Neutral{background:var(--neu)}.trk i.Negative{background:var(--neg)}
+.tips{margin:0;padding-left:18px}.tips li{margin-bottom:9px;font-size:14px}
+.chips span.em{font-size:15px}
+.dash>.card{margin-bottom:14px}
+.rs{border-top:1px solid var(--bd);padding:14px 0}.rs textarea{min-height:0;font-size:14px;margin-top:10px;padding:10px;background:var(--bg)}
+.rsb{margin-top:6px}
+.hero{position:relative;overflow:hidden;border-radius:14px;padding:14px 18px;margin-bottom:14px;color:#fff;background:linear-gradient(135deg,#243b63 0%,#3a62a0 55%,#4b8a86 100%);box-shadow:0 4px 14px rgba(36,59,99,.18)}
+.hero .wm{position:absolute;right:-18px;top:-22px;width:130px;height:130px;opacity:.15;pointer-events:none}
+.hero>*:not(.wm){position:relative}
+.hrow{display:flex;align-items:center;gap:12px}
+.hero .logo{width:36px;height:36px;flex:none;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35)}
+.hero .ht{font-size:21px;font-weight:800;letter-spacing:-.02em;line-height:1.15;margin:0}
+.hs{margin:1px 0 0;font-size:12.5px;color:rgba(255,255,255,.85)}
+.who{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:12px;font-size:12px}
+.who b{margin-right:2px;color:rgba(255,255,255,.9)}
+.who span{font-size:11.5px;font-weight:600;padding:3px 10px;border-radius:99px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.26)}
+.hero .plats{margin:10px 0 0;gap:5px}
+.hero .plats span{color:rgba(255,255,255,.8);font-size:12px}
+.hero .plats button{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.45);font-weight:600;font-size:11.5px;padding:3px 11px}
+.hero .plats button:hover{background:rgba(255,255,255,.14)}
+.hero .plats button.on{background:#fff;color:#243b63;border-color:#fff}
+.hiw{margin:0 auto 12px;max-width:600px;text-align:center;font-size:14px;color:var(--mu);line-height:1.6}.hiw b{color:var(--tx)}
+.stp{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-bottom:16px}
+.stp div{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:600;background:var(--bg);border:1px solid var(--bd);border-radius:10px;padding:8px 10px}
+.stp i{font-style:normal;flex:none;width:20px;height:20px;border-radius:50%;background:var(--ac);color:#fff;font-size:11px;display:grid;place-items:center}
+.two2{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media (max-width:620px){.two2{grid-template-columns:1fr}}
+.lbl{display:flex;gap:8px;align-items:center;margin-bottom:6px;font-size:13.5px}
+.tg2{font-style:normal;font-size:10.5px;font-weight:700;letter-spacing:.04em;padding:2px 9px;border-radius:99px}.tg2.v{background:var(--acb);color:var(--ac)}.tg2.h{background:var(--posb);color:var(--pos)}
+.emi{font-size:inherit;line-height:inherit}
+.picks{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}.picks button{padding:3px 7px;font-size:17px;line-height:1.2}
+ 
+/* ---- appearance polish ---- */
+body{background-image:radial-gradient(900px 420px at 90% -8%,rgba(58,98,160,.11),transparent 60%),radial-gradient(700px 360px at -8% 0,rgba(75,138,134,.09),transparent 60%);background-repeat:no-repeat;-webkit-font-smoothing:antialiased}
+main{max-width:860px;padding:22px 16px 56px}
+.card{border-radius:18px;padding:22px;box-shadow:0 1px 2px rgba(16,24,40,.04),0 8px 24px rgba(16,24,40,.05)}
+.lab{letter-spacing:.12em;font-size:11px}
+.stage{border-left:1px solid var(--bd);border-top:3px solid var(--ac);border-radius:14px;padding:18px}
+textarea{border-radius:12px;padding:14px;line-height:1.55;transition:border-color .15s,box-shadow .15s}
+textarea:focus{outline:none;border-color:var(--ac);box-shadow:0 0 0 4px rgba(52,80,122,.15)}
+button{transition:background .15s,box-shadow .15s,transform .1s,border-color .15s}
+button:active{transform:translateY(1px)}
+button.p{background:linear-gradient(135deg,#2f4a76,#40699f);border-color:transparent;color:#fff;padding:10px 20px;font-weight:600;box-shadow:0 3px 10px rgba(47,74,118,.3)}
+button.p:hover{background:linear-gradient(135deg,#2f4a76,#40699f);opacity:1;box-shadow:0 5px 14px rgba(47,74,118,.38)}
+button.ex{border-radius:99px;padding:6px 13px}
+.picks button{border-radius:10px}.picks button:hover{transform:scale(1.12);background:var(--acb)}
+.ar{display:grid;place-items:center;width:28px;height:28px;margin:12px auto;border-radius:50%;background:var(--acb);color:var(--ac);font-size:14px;font-weight:700}
+.pairr .plus{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--card);border:1px solid var(--bd);color:var(--mu);font-size:16px}
+.res{position:relative;overflow:hidden;border-radius:16px;padding:18px 18px 16px;box-shadow:0 1px 2px rgba(16,24,40,.04),0 6px 16px rgba(16,24,40,.05);animation:rise .4s ease both}
+.res::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:currentColor;opacity:.8}
+.res.none::before{opacity:.15}
+.res .eng{display:inline-block;margin-top:6px;padding:2px 10px;border-radius:99px;background:rgba(127,127,127,.13);font-size:12px;font-weight:600}
+.res .v{font-size:26px;margin:14px 0 10px}
+.res .bar{height:8px;border-radius:4px}
+#ro{box-shadow:0 0 0 1px currentColor inset,0 8px 22px rgba(16,24,40,.07)}#ro.none{box-shadow:none}
+.res .det{font-size:22px}
+.insight{border-radius:14px;padding:16px 20px;box-shadow:0 1px 2px rgba(16,24,40,.04);background:linear-gradient(90deg,var(--acb),var(--card) 60%)}
+.insight small::before{content:"✦ "}
+.rs{border:1px solid var(--bd);border-radius:14px;padding:14px;margin-top:10px;background:var(--bg)}
+.rs textarea{background:var(--card)}
+.pl{letter-spacing:.01em}
+.foot{text-align:center;max-width:620px;margin:20px auto 0;padding-top:14px;border-top:1px solid var(--bd);line-height:1.6}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media (max-width:620px){.card{padding:16px;border-radius:16px}.hero{padding:14px}.res .v{font-size:23px}}
+.two2{gap:14px}
+.inb{border:1px solid var(--bd);border-radius:16px;background:var(--card);overflow:hidden;display:flex;flex-direction:column;transition:border-color .15s,box-shadow .15s}
+.inb.t:focus-within{border-color:var(--ac);box-shadow:0 0 0 4px rgba(52,80,122,.14)}.inb.e:focus-within{border-color:var(--pos);box-shadow:0 0 0 4px rgba(59,143,104,.16)}
+.inh{display:flex;align-items:center;gap:10px;padding:11px 14px}
+.inb.t .inh{background:var(--acb)}.inb.e .inh{background:var(--posb)}
+.ico{width:34px;height:34px;border-radius:10px;background:var(--card);display:grid;place-items:center;font-size:18px;flex:none;box-shadow:0 1px 2px rgba(16,24,40,.08)}
+.it{flex:1;line-height:1.25}.it b{display:block;font-size:14px}.it small{font-size:11.5px;font-weight:600}
+.inb.t .it small{color:var(--ac)}.inb.e .it small{color:var(--pos)}
+.cn{font-size:11.5px;font-weight:600;color:var(--mu);background:var(--card);border-radius:99px;padding:3px 10px}
+.inb textarea{border:0;border-radius:0;background:transparent;box-shadow:none!important;min-height:130px;padding:14px;flex:1}
+.inb textarea:focus{outline:none;box-shadow:none}
+.inb .picks{margin:0;padding:8px 12px;border-top:1px dashed var(--bd)}
+.inf{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 12px;border-top:1px solid var(--bd);background:var(--bg);font-size:12px;color:var(--mu)}
+.inf button.ex{padding:3px 11px;font-size:12px}
+.inb textarea,.inb textarea.emi{font-size:15px;line-height:1.55}
+</style></head><body><main>
+ 
+<div class="hero">
+<svg class="wm" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width=".6"><circle cx="12" cy="12" r="11"/><circle cx="12" cy="12" r="7.5"/><path d="M12 1v22M1 12h22" stroke-width=".3"/><path d="M16.5 7.5l-3 6-6 3 3-6z" fill="#fff" stroke="none"/></svg>
+<div class="hrow"><div class="logo"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z" fill="#fff"/></svg></div>
+<div><h1 class="ht">Sentiment Compass</h1><p class="hs">Audience sentiment analytics for content creators</p></div></div>
+<div class="who"><b>Built for:</b><span>🎥 YouTubers</span><span>🎵 TikTokers</span><span>📸 Instagram creators</span><span>🎮 Streamers</span><span>💼 Social media managers</span></div>
+<div class="plats" id="pl"><span>Analysing comments from:</span><button class="on" data-p="YouTube">YouTube</button><button data-p="Instagram">Instagram</button><button data-p="TikTok">TikTok</button><button data-p="Other">Other</button></div>
+</div>
+ 
+<div class="card flow">
+<p class="lab" style="text-align:center">Analyze your audience</p>
+ 
+<div class="stage">
+<div class="stl">AUDIENCE MESSAGE</div>
+<div class="two2">
+<div class="inb t"><div class="inh"><span class="ico">✍️</span><div class="it"><b>Written text</b><small>Analysed by VADER</small></div><span class="cn" id="ct">0 comments</span></div>
+<textarea id="in" placeholder="Paste comments here, one per line…&#10;I really love this video, the tips are amazing!"></textarea>
+<div class="inf"><span>One comment per line</span><button type="button" class="ex" data-clr="in">Clear</button></div></div>
+<div class="inb e"><div class="inh"><span class="ico">😊</span><div class="it"><b>Emojis</b><small>Analysed by Hugging Face</small></div><span class="cn" id="cm">0 emojis</span></div>
+<textarea id="em" class="emi" placeholder="Paste or pick emojis, one line per comment…&#10;❤️😊"></textarea>
+<div class="picks" id="pk"></div>
+<div class="inf"><span>Tap an emoji to add it</span><button type="button" class="ex" data-clr="em">Clear</button></div></div>
+</div>
+<div class="mu" style="margin-top:8px">Line 1 of emojis goes with line 1 of text, and so on. Either box can be left empty.</div>
+<div class="mu" style="margin-top:8px">Results appear automatically as you paste or type. Paste several comments (one per line) to analyse them together.</div>
+<div class="row"><button class="p" id="go">Analyze message</button>
+<button class="ex" data-x="I really love this video, the tips are amazing!" data-e="">Text only</button>
+<button class="ex" data-x="Honestly the worst update yet" data-e="😡😠😤">Negative</button>
+<button class="ex" data-x="It was fine I guess" data-e="😐😶">Neutral</button>
+<button class="ex" data-x="Great content but the audio is terrible" data-e="😢">Mixed</button></div>
+</div>
+ 
+<div id="out" hidden>
+<div class="ar">↓</div>
+<div class="pairr">
+<div class="res" id="rt"><h3>TEXT SENTIMENT</h3><div class="eng">Written text → VADER</div><div class="v"></div><div class="bar"><i></i></div><div class="pw">Powered by VADER</div></div>
+<span class="plus">+</span>
+<div class="res" id="re"><h3>EMOJI SENTIMENT</h3><div class="eng">Emojis → Hugging Face</div><div class="v"></div><div class="bar"><i></i></div><div class="det"></div><div class="pw">Powered by Hugging Face</div></div>
+</div>
+<div class="ar">↓</div>
+<div class="res" id="ro"><h3>OVERALL SENTIMENT</h3><div class="eng">Combined sentiment</div><div class="v"></div><div class="bar"><i></i></div><div class="pw">Text + emojis combined</div></div>
+<div class="ar">↓</div>
+<div class="insight" style="margin-top:0"><small>AUDIENCE INSIGHT</small><span id="ins"></span></div>
+ 
+</div>
+</div>
+<div id="bd" class="dash" hidden></div>
+<p class="foot">VADER runs in your browser. Start the Flask app with <code>HF_API_TOKEN</code> configured to enable Hugging Face emoji scoring; if the service is unavailable, a built-in emoji table is used. The API token stays on the server.</p>
+</main>
+<script>
+const LEX={love:3.2,loved:2.9,amazing:3.1,great:3.1,good:1.9,awesome:3.1,excellent:2.7,enjoyed:2.2,enjoy:2.2,like:1.5,liked:1.8,helpful:1.8,best:3.2,happy:2.7,nice:1.8,fantastic:2.6,perfect:2.7,brilliant:2.8,beautiful:2.9,wonderful:2.7,thanks:1.9,thank:1.5,recommend:1.5,fun:2.3,funny:1.9,cool:1.3,favorite:2.0,inspiring:2.4,useful:2.0,incredible:2.8,informative:1.9,hilarious:2.3,legend:2.2,tips:.5,
+hate:-2.7,hated:-3.0,terrible:-2.1,bad:-2.5,worst:-3.1,awful:-2.0,boring:-1.3,horrible:-2.5,poor:-2.1,disappointing:-2.2,disappointed:-2.2,annoying:-1.7,waste:-1.8,sad:-2.1,angry:-2.3,useless:-1.8,broken:-1.4,ugly:-2.1,fake:-1.7,scam:-2.5,slow:-1.0,rude:-2.0,cringe:-1.6,misleading:-2.0,clickbait:-2.0,stupid:-2.4,trash:-2.2,confusing:-1.4,
+okay:.9,ok:.9,fine:.8};
+const NEGW=new Set(["not","no","never","isnt","wasnt","dont","didnt","cant","wont","hardly","without","doesnt","couldnt"]);
+const BOOST={very:.293,really:.293,extremely:.293,so:.293,absolutely:.293,totally:.293,super:.293,slightly:-.293,somewhat:-.293,barely:-.293};
+const EMO_RE=/\p{Extended_Pictographic}/gu;
+// WRITTEN TEXT -> VADER
+let vh=[];
+function vader(text){vh=[];
+ const raw=text.replace(EMO_RE," ").replace(/[\uFE0F\u200D]/g,"").match(/[A-Za-z']+/g)||[];if(!raw.length)return null;
+ const w=raw.map(x=>x.replace(/'/g,"").toLowerCase());let sum=0;
+ w.forEach((k,i)=>{let v=LEX[k];if(v===undefined)return;
+  if(raw[i]===raw[i].toUpperCase()&&raw[i].length>2)v+=Math.sign(v)*.733;
+  const prev=w.slice(Math.max(0,i-3),i);
+  prev.forEach(p=>{if(BOOST[p]!==undefined)v+=Math.sign(v)*BOOST[p]});
+  if(prev.some(p=>NEGW.has(p)))v*=-.74;sum+=v;vh.push([k,v])});
+ const ex=Math.min((text.match(/!/g)||[]).length,4);if(sum)sum+=Math.sign(sum)*ex*.292;
+ return sum/Math.sqrt(sum*sum+15);
+}
+// EMOJIS -> Hugging Face
+const HF_ENDPOINT="/api/emoji-sentiment"; // Set to an empty string to use the local fallback only.
+const EMO={"❤":.9,"😊":.85,"😍":.95,"🥰":.95,"😂":.7,"🤣":.7,"👍":.7,"👏":.8,"🔥":.75,"😁":.8,"😀":.75,"🙌":.8,"💖":.9,"💕":.9,"🎉":.8,"💯":.8,"😎":.6,"🙏":.6,"✨":.6,"😄":.8,"🤩":.9,"💪":.7,"😐":0,"😶":0,"😑":0,"🤔":0,"🙄":-.4,
+"😡":-.9,"😠":-.85,"😤":-.7,"🤬":-.95,"👎":-.7,"😢":-.7,"😭":-.8,"💔":-.9,"😞":-.7,"😒":-.5,"🤮":-.85,"😩":-.6,"😕":-.4};
+async function analyzeEmojis(list){
+ if(!list.length)return null;
+ if(HF_ENDPOINT){try{const r=await fetch(HF_ENDPOINT,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({emojis:list})});if(!r.ok)throw new Error("Emoji analysis request failed");const score=(await r.json()).score;if(Number.isFinite(score)&&score>=-1&&score<=1)return score}catch(e){}}
+ const k=list.filter(e=>e in EMO);return k.length?k.reduce((a,e)=>a+EMO[e],0)/k.length:0;
+}
+// COMBINE
+const lab=s=>s>=.05?"Positive":s<=-.05?"Negative":"Neutral";
+const pct=s=>Math.min(99,Math.round(50+50*Math.pow(Math.abs(s),.8)));
+const $=id=>document.getElementById(id);
+function show(id,s){const el=$(id);
+ if(s===null){el.className="res none";el.querySelector(".v").textContent="Not detected";el.querySelector(".bar i").style.width="0";return}
+ const l=lab(s),p=pct(s);el.className="res "+l;el.querySelector(".v").textContent=l+" — "+p+"%";el.querySelector(".bar i").style.width=p+"%"}
+function insight(t,e,o){
+ const lo=lab(o).toLowerCase();
+ if(t===null)return `Only emojis were found, and they read as ${lo}. Add a written message for a fuller picture.`;
+ if(e===null)return `Only written text was found, and it reads as ${lo}. Adding emojis gives a fuller picture of how the viewer feels.`;
+ const lt=lab(t),le=lab(e);
+ if(lt===le){const st=Math.abs(o)>.6?"strongly ":"";
+  const why=lt==="Positive"?"that the viewer enjoyed the content":lt==="Negative"?"that the viewer was unhappy with the content":"a calm, neutral reaction";
+  return `Your audience response is ${st}${lo}. Both the written message and emojis indicate ${why}.`}
+ return `The signals differ: the written message is ${lt.toLowerCase()} while the emojis are ${le.toLowerCase()}. This often means mixed feelings or sarcasm, so the overall result is ${lo}. Read it in context.`;
+}
+let runId=0;
+async function run(){
+ const thisRun=++runId;
+ const X=$("in").value.split(/\r?\n/).map(l=>l.trim()),Y=$("em").value.split(/\r?\n/).map(l=>l.trim()),N=Math.max(X.length,Y.length),lines=[];
+ for(let i=0;i<N;i++){const c=X[i]||"",m=Y[i]||"";if(c||m)lines.push([c,m])}
+ if(!lines.length){$("out").hidden=true;$("bd").hidden=true;return}
+ const rows=[];
+ for(const [c,m] of lines){const t1=vader(c),em=(m+" "+c).match(EMO_RE)||[],e1=await analyzeEmojis(em),q=[t1,e1].filter(x=>x!==null);
+  if(thisRun!==runId)return;
+  rows.push({l:(c+" "+m).trim(),t:t1,e:e1,em,o:q.length?q.reduce((a,b)=>a+b,0)/q.length:0})}
+ const emojis=rows.flatMap(r=>r.em);
+ const ts=rows.map(r=>r.t).filter(x=>x!==null);
+ const t=ts.length?ts.reduce((a,b)=>a+b,0)/ts.length:null,e=await analyzeEmojis(emojis);
+ if(thisRun!==runId)return;
+ const p=[t,e].filter(x=>x!==null);if(!p.length)return;
+ const o=p.reduce((a,b)=>a+b,0)/p.length;
+ $("out").hidden=false;show("rt",t);show("re",e);show("ro",o);
+ $("re").querySelector(".det").textContent=emojis.join(" ");
+ breakdown(rows);
+ $("ins").textContent=insight(t,e,o)+(lines.length>1?` (Based on ${lines.length} comments.)`:"");
+}
+const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const pl=(s,pre)=>s===null?`<span class="pl none">${pre}: –</span>`:`<span class="pl ${lab(s)}">${pre}: ${lab(s)}</span>`;
+let R=[],flt="All";
+function breakdown(rows){R=rows;if(!rows.length){$("bd").hidden=true;return}$("bd").hidden=false;drawBd()}
+const ASK=/\?|\bplease\b|\bpls\b|part\s*2|can you|could you|how (do|to|did)|tutorial|next video|would love to see|make more/i;
+let plat="YouTube";
+const RP={pos:["Thank you so much, comments like this make my day!","This means a lot, thank you for watching and for the kind words!","So glad you enjoyed it, thanks for the support!"],
+neg:["Thanks for the honest feedback. I hear you, and I'll work on making the next one better.","Sorry this one missed the mark for you. I appreciate you telling me and I'll take it on board."],
+neu:["Thanks for watching! Let me know what you'd like to see next.","Appreciate you stopping by! Anything you'd like me to cover next?"],
+ask:["Great question, thank you for asking! I'll cover this in an upcoming video, so stay tuned."]};
+function reply(r){
+ const tk=plat==="TikTok"?" 🙌":plat==="Instagram"?" ✨":"";
+ const pick=a=>a[r.i%a.length];
+ if(r.ask)return pick(RP.ask)+tk;
+ if(r.o>=.05)return pick(RP.pos)+tk;
+ if(r.o<=-.05)return pick(RP.neg);
+ return pick(RP.neu)+tk;
+}
+const needs=r=>r.o<=-.05||r.ask;
+function drawBd(){
+ const n=R.length;R.forEach((r,i)=>{r.i=i;r.ask=ASK.test(r.l)});
+ const f={All:()=>true,"Needs reply":needs,Positive:r=>lab(r.o)==="Positive",Neutral:r=>lab(r.o)==="Neutral",Negative:r=>lab(r.o)==="Negative"};
+ const cnt={};Object.keys(f).forEach(k=>cnt[k]=R.filter(f[k]).length);
+ const list=R.filter(f[flt]).slice(0,50);
+ $("bd").innerHTML=`<div class="card pn"><p class="lab">Reply Studio <em class="t">for ${plat} creators</em></p>
+ <div class="mu" style="margin-bottom:10px">A suggested reply for every comment. Edit it, then copy and paste it into ${plat}.</div>
+ <div class="row" style="margin:0 0 6px">${Object.keys(f).map(k=>`<button class="ex ${k===flt?"on":""}" data-f="${k}">${k} (${cnt[k]})</button>`).join("")}</div>
+ ${list.map(r=>`<div class="rs"><div class="cmr" style="border:0;padding:0"><p>${esc(r.l)}</p><div class="tg">${r.ask?'<span class="pl Neutral">Question</span>':""}${pl(r.t,"Text")}${pl(r.e,"Emoji")}<span class="pl ${lab(r.o)}">Overall: ${lab(r.o)} ${pct(r.o)}%</span></div></div>
+ <textarea id="rr${r.i}" rows="2">${esc(reply(r))}</textarea><div class="rsb"><button class="ex" data-cr="${r.i}">Copy reply</button></div></div>`).join("")||'<div class="mu">No comments in this group.</div>'}
+ <div class="mu" style="margin-top:12px">Replies are template drafts based on each comment's sentiment. Always read and personalise before posting.</div></div>`}
+$("bd").addEventListener("click",async e=>{const b=e.target.closest("[data-f]");if(b){flt=b.dataset.f;drawBd();return}
+ const c=e.target.closest("[data-cr]");if(c){const t=$("rr"+c.dataset.cr);try{await navigator.clipboard.writeText(t.value);c.textContent="Copied ✓"}catch(x){t.select();c.textContent="Select and copy"}setTimeout(()=>{c.textContent="Copy reply"},1500)}});
+$("pl").addEventListener("click",e=>{const b=e.target.closest("[data-p]");if(!b)return;plat=b.dataset.p;document.querySelectorAll("#pl [data-p]").forEach(x=>x.classList.toggle("on",x===b));if(R.length&&!$("bd").hidden)drawBd()});
+$("go").onclick=run;
+let tm;function cnts(){const n=$("in").value.split(/\r?\n/).filter(l=>l.trim()).length,m=(($("em").value+" "+$("in").value).match(EMO_RE)||[]).length;$("ct").textContent=n+(n===1?" comment":" comments");$("cm").textContent=m+(m===1?" emoji":" emojis")}
+const auto=()=>{cnts();clearTimeout(tm);tm=setTimeout(run,250)};
+$("pk").innerHTML="❤️ 😊 😍 😂 👍 🔥 👏 🙌 😐 😶 😡 😠 😤 😢 😭 💔".split(" ").map(e=>`<button type="button" data-e2="${e}">${e}</button>`).join("");
+document.querySelectorAll("[data-e2]").forEach(b=>b.onclick=()=>{const t=$("em"),i=t.selectionStart??t.value.length;t.value=t.value.slice(0,i)+b.dataset.e2+t.value.slice(t.selectionEnd??i);t.focus();t.selectionStart=t.selectionEnd=i+b.dataset.e2.length;auto()});
+document.querySelectorAll("[data-clr]").forEach(b=>b.onclick=()=>{$(b.dataset.clr).value="";auto()});
+["in","em"].forEach(id=>{$(id).addEventListener("input",auto);$(id).addEventListener("paste",auto)});
+["in","em"].forEach(id=>$(id).addEventListener("keydown",e=>{if(e.key==="Enter"&&(e.ctrlKey||e.metaKey))run()}));
+document.querySelectorAll("[data-x]").forEach(b=>b.onclick=()=>{$("in").value=b.dataset.x;$("em").value=b.dataset.e||"";cnts();run()});
+run();
+</script></body></html>
